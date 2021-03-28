@@ -10,9 +10,9 @@ var temp_scale = "c";
 var time_scale_slope = "m";
 var time_scale_profile = "m";
 var time_scale_long = "Minutes";
-var temp_scale_display = "C";
-var kwh_rate = 0.26;
-var currency_type = "AUD";
+var temp_scale_display = "F";
+var kwh_rate = 0.07;
+var currency_type = "CAD";
 
 var host = "ws://" + window.location.hostname + ":" + window.location.port;
 var ws_status = new WebSocket(host+"/status");
