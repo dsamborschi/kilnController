@@ -141,9 +141,9 @@ function updateProfileTable()
             var id = $(this)[0].id; //e.currentTarget.attributes.id
             var value = parseInt($(this)[0].value);
             var fields = id.split("-");
-            var row = parseInt(fields[2]);
+            var row = parseInt(fields[1]);
 	    
-            console.log(fields[2]);
+            console.log(fields[1]);
 		 
             if (graph.profile.data.length > 0) {
 		    if (row > 0) {
