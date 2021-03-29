@@ -142,10 +142,14 @@ function updateProfileTable()
             var value = parseInt($(this)[0].value);
             var fields = id.split("-");
             var row = parseInt(fields[2]);
+	    
             
             if (graph.profile.data.length > 0) {
-		var newTimeTarget = ((graph.profile.data[row][1] - graph.profile.data[row-1][1])/value) + graph.profile.data[row-1][0];
-                graph.profile.data[row][0] = timeProfileFormatter(newTimeTarget,false);   
+		    if (row > 0) {
+		       alert (row);
+		       var newTimeTarget = ((graph.profile.data[row][1] - graph.profile.data[row-1][1])/value) + graph.profile.data[row-1][0];
+                       graph.profile.data[row][0] = timeProfileFormatter(newTimeTarget,false);   
+		    }
 		graph.plot = $.plot("#graph_container", [ graph.profile, graph.live, graph.movingProfile ], getOptions());
             }
             
