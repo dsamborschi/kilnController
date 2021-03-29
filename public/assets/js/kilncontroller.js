@@ -125,7 +125,8 @@ function updateProfileTable()
         html += '<tr><td><h4>' + (i+1) + '</h4></td>';
         html += '<td><input type="text" class="form-control" id="profiletable-0-'+i+'" value="'+ timeProfileFormatter(graph.profile.data[i][0],true) + '" style="width: 60px" /></td>';
         html += '<td><input type="text" class="form-control" id="profiletable-1-'+i+'" value="'+ graph.profile.data[i][1] + '" style="width: 60px" /></td>';
-        html += '<td><div class="input-group"><span class="glyphicon glyphicon-circle-arrow-' + slope + ' input-group-addon ds-trend" style="background: '+color+'"></span><input type="text" class="form-control ds-input"  value="' + formatDPS(dps) + '" style="width: 100px" /></div></td>';
+        //html += '<td><div class="input-group"><span class="glyphicon glyphicon-circle-arrow-' + slope + ' input-group-addon ds-trend" style="background: '+color+'"></span><input type="text" class="form-control ds-input"  value="' + formatDPS(dps) + '" style="width: 100px" /></div></td>';
+	html += '<td><div class="input-group"><span class="glyphicon glyphicon-circle-arrow-' + slope + ' input-group-addon ds-trend" style="background: '+color+'"></span><input type="text" class="form-control-rate ds-input"  id="rate-'+i+'"  style="width: 100px" /></div></td>';
         html += '<td>&nbsp;</td></tr>';
     }
 
@@ -134,6 +135,25 @@ function updateProfileTable()
     $('#profile_table').html(html);
 
     //Link table to graph
+	
+	 $(".form-control-rate").change(function(e)
+        {
+            var id = $(this)[0].id; //e.currentTarget.attributes.id
+            var value = parseInt($(this)[0].value);
+            var fields = id.split("-");
+            var row = parseInt(fields[2]);
+            
+            if (graph.profile.data.length > 0) {
+		newTimeTarget = (graph.profile.data[row][1] - graph.profile.data[row-1][1])/value + graph.profile.data[row-1][0];
+                graph.profile.data[row][0] = timeProfileFormatter(newTimeTarget,false);   
+            }
+            
+            graph.plot = $.plot("#graph_container", [ graph.profile, graph.live, graph.movingProfile ], getOptions());
+            }
+            updateProfileTable();
+
+        });
+ 
     $(".form-control").change(function(e)
         {
             var id = $(this)[0].id; //e.currentTarget.attributes.id
