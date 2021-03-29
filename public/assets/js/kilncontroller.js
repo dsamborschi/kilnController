@@ -116,7 +116,7 @@ function updateProfileTable()
 
     for(var i=0; i<graph.profile.data.length;i++)
     {
-
+        //this needs to be removed to wortk only with tem, hold, ramp scenario
         if (i>=1) dps =  ((graph.profile.data[i][1]-graph.profile.data[i-1][1])/(graph.profile.data[i][0]-graph.profile.data[i-1][0]) * 10) / 10;
         if (dps  > 0) { slope = "up";     color="rgba(206, 5, 5, 1)"; } else
         if (dps  < 0) { slope = "down";   color="rgba(23, 108, 204, 1)"; dps *= -1; } else
