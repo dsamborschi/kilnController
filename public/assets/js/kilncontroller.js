@@ -149,7 +149,8 @@ function updateProfileTable()
 		    if (row == 0) {
 		       var newTimeTarget = graph.profile.data[row][1]/value;
                        graph.profile.data[row][0] = timeProfileFormatter(newTimeTarget,false);   
-		    }esle {
+		    }
+		    else {
 		     
 		       var newTimeTarget = ((graph.profile.data[row][1] - graph.profile.data[row-1][1])/value) + graph.profile.data[row-1][0];
                        graph.profile.data[row][0] = timeProfileFormatter(newTimeTarget,false);   
