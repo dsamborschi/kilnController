@@ -143,7 +143,7 @@ function updateProfileTable()
             var fields = id.split("-");
             var row = parseInt(fields[1]);
 	    
-            console.log(fields[1]);
+            console.log("Rate row=" + fields[1]);
 		 
             if (graph.profile.data.length > 0) {
 		    if (row > 0) {
