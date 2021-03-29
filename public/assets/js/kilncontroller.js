@@ -146,7 +146,7 @@ function updateProfileTable()
             console.log("Rate row=" + row);
 		 
             if (graph.profile.data.length > 0) {
-		    if (row > 0) {
+		    if (row == 0) {
 		       var newTimeTarget = graph.profile.data[row][1]/value;
                        graph.profile.data[row][0] = timeProfileFormatter(newTimeTarget,false);   
 		    }esle {
