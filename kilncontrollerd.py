@@ -12,6 +12,9 @@ from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler 
 from geventwebsocket import WebSocketError
 
+from pymongo import MongoClient
+client = MongoClient('mongo://10.0.0.169:28017’)
+
 try:
     sys.dont_write_bytecode = True
     import config
