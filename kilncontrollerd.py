@@ -134,7 +134,7 @@ def handle_storage():
                         msgdict["resp"] = "OK"
                     else:
                         msgdict["resp"] = "FAIL"
-                    log.debug("websocket (storage) sent: %s" % message)
+                   
                     log.debug("profile_obj (storage) saved: %s" % profile_obj)
 
                     wsock.send(json.dumps(msgdict))
@@ -194,6 +194,9 @@ def save_profile(profile, force=False):
         f.write(profile_json)
         f.close()
     log.info("Wrote %s" % filepath)
+    
+    Document profileobj = Document.parse(profile_json);
+    db.insertOne(profileobj);
     return True
 
 
