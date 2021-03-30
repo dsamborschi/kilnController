@@ -15,6 +15,8 @@ from geventwebsocket import WebSocketError
 from pymongo import MongoClient
 client = MongoClient("mongodb://10.0.0.169:28017")
 
+db=client.profiles
+
 try:
     sys.dont_write_bytecode = True
     import config
@@ -133,6 +135,7 @@ def handle_storage():
                     else:
                         msgdict["resp"] = "FAIL"
                     log.debug("websocket (storage) sent: %s" % message)
+                    log.debug("profile_obj (storage) saved: %s" % profile_obj)
 
                     wsock.send(json.dumps(msgdict))
                     wsock.send(get_profiles())
