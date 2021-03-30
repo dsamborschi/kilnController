@@ -195,8 +195,8 @@ def save_profile(profile, force=False):
         f.close()
     log.info("Wrote %s" % filepath)
     
-    Document profileobj = Document.parse(profile_json);
-    db.insertOne(profileobj);
+    Document profileobj = Document.parse(profile_json)
+    db.insertOne(profileobj)
     return True
 
 
