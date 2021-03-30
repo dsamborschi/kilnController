@@ -196,9 +196,7 @@ def save_profile(profile, force=False):
     log.info("Wrote %s" % filepath)
     
     
-    with open(filepath) as f:
-    dataProfile = json.load(f)
-    db.insertOne(dataProfile)
+    db.insertOne(json.loads(profile_json))
     return True
 
 
