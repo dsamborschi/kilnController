@@ -204,7 +204,7 @@ def save_profile(profile, force=False):
     try:
      result=self.collection.insert_one(mydict)
      print (result.inserted_id)
-   except Exception:
+   except:
     print(traceback.format_exc())
         
     return True
