@@ -198,7 +198,7 @@ def save_profile(profile, force=False):
     log.info("Wrote %s" % filepath)
     
     #Save to mongo database
-    result= db.profiles.insertOne(json.loads(profile_json))
+    #result= db.profiles.insertOne(json.loads(profile_json))
     log.info("Saved the json profile %s" % filename)
    
     return True
