@@ -197,7 +197,7 @@ def save_profile(profile, force=False):
     
     #Save to the database
     result= db.profiles.insertOne(json.loads(profile_json))
-    
+    log.info("Saved the jason profile %s" % filename)
     #Print to the console the ObjectID of the new document
     print('Created profile {0}'.result.inserted_id)
     return True
