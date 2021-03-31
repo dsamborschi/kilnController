@@ -195,6 +195,7 @@ def save_profile(profile, force=False):
         f.close()
     log.info("Wrote %s" % filepath)
     
+    #Save to the database
     result= db.insertOne(json.loads(profile_json))
     
     #Print to the console the ObjectID of the new document
