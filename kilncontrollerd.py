@@ -195,11 +195,10 @@ def save_profile(profile, force=False):
         f.close()
     log.info("Wrote %s" % filepath)
     
-    #Save to the database
+    #Save to mongo database
     result= db.profiles.insertOne(json.loads(profile_json))
-    log.info("Saved the jason profile %s" % filename)
-    #Print to the console the ObjectID of the new document
-    print('Created profile {0}'.result.inserted_id)
+    log.info("Saved the json profile %s" % filename)
+   
     return True
 
 
