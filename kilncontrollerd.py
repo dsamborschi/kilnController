@@ -15,7 +15,7 @@ from geventwebsocket import WebSocketError
 from pymongo import MongoClient
 client = MongoClient("mongodb://10.0.0.169:28017")
 
-db=client.profiles
+db=client.kiln
 
 try:
     sys.dont_write_bytecode = True
@@ -196,7 +196,7 @@ def save_profile(profile, force=False):
     log.info("Wrote %s" % filepath)
     
     #Save to the database
-    result= db.insertOne(json.loads(profile_json))
+    result= db.profiles.insertOne(json.loads(profile_json))
     
     #Print to the console the ObjectID of the new document
     print('Created profile {0}'.result.inserted_id)
