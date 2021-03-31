@@ -4,6 +4,7 @@ import os
 import sys
 import logging
 import json
+import traceback
 
 import bottle
 import gevent
@@ -203,8 +204,8 @@ def save_profile(profile, force=False):
     try:
      result=collection.insert_one(mydict)
      log.info("Saved the profile to mongo with id %s" % result.inserted_id)
-    except e:
-        print "Mongo erro: %s" % e
+   except Exception:
+        traceback.print_exc()
         
     return True
 
