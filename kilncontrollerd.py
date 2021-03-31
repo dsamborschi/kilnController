@@ -203,8 +203,8 @@ def save_profile(profile, force=False):
     try:
      result=collection.insert_one(mydict)
      log.info("Saved the profile to mongo with id %s" % result.inserted_id)
-    except:
-        print "no records added"
+    except e:
+        print "Mongo erro: %s" % e
         
     return True
 
