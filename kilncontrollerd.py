@@ -203,8 +203,8 @@ def save_profile(profile, force=False):
     mydict = { "name": "Peter", "address": "Lowstreet 27" }
     try:
      result=self.collection.insert_one(mydict)
-     log.info("Saved the profile to mongo with id %s" % result.inserted_id)
-   except:
+     print (result.inserted_id)
+   except Exception:
         traceback.print_exc()
         
     return True
