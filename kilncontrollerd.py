@@ -200,8 +200,8 @@ def save_profile(profile, force=False):
     
     #Save to mongo database
     mydict = { "name": "Peter", "address": "Lowstreet 27" }
-    result=collection.insert_one(mydict)
-    log.info("Saved the profile to mongo with id %s" % result.inserted_id)
+   # result=collection.insert_one(mydict)
+    #log.info("Saved the profile to mongo with id %s" % result.inserted_id)
    
     return True
 
