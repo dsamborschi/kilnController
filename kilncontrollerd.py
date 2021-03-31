@@ -184,7 +184,8 @@ def get_profiles():
 def save_profile(profile, force=False):
     
     client = MongoClient("mongodb://10.0.0.169:28017")
-    db=client.kiln
+    db=client["kiln"]
+    collection=db["profiles"]
 
     profile_json = json.dumps(profile)
     filename = profile['name'] + ".json"
@@ -198,8 +199,8 @@ def save_profile(profile, force=False):
     log.info("Wrote %s" % filepath)
     
     #Save to mongo database
-    db.profiles.insertOne(json.load(filepath))
-    log.info("Saved the json profile %s" % filename)
+    result=collection.insertOne(json.load(filepath))
+    log.info("Saved the profile to mongo with id %s" % result.inserted_id)
    
     return True
 
