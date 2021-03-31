@@ -190,19 +190,22 @@ def save_profile(profile, force=False):
     profile_json = json.dumps(profile)
     filename = profile['name'] + ".json"
     filepath = os.path.join(profile_path, filename)
-    #if not force and os.path.exists(filepath):
-     #   log.error("Could not write, %s already exists" % filepath)
-      #  return False
-    #with open(filepath, 'w+') as f:
-     #   f.write(profile_json)
-     #   f.close()
-    #log.info("Wrote %s" % filepath)
+    if not force and os.path.exists(filepath):
+        log.error("Could not write, %s already exists" % filepath)
+        return False
+    with open(filepath, 'w+') as f:
+        f.write(profile_json)
+        f.close()
+    log.info("Wrote %s" % filepath)
     
     #Save to mongo database
     mydict = { "name": "Peter", "address": "Lowstreet 27" }
-   # result=collection.insert_one(mydict)
-    #log.info("Saved the profile to mongo with id %s" % result.inserted_id)
-   
+    try:
+     result=collection.insert_one(mydict)
+     log.info("Saved the profile to mongo with id %s" % result.inserted_id)
+    except:
+        print "no records added"
+        
     return True
 
 
