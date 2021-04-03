@@ -10,9 +10,9 @@ var temp_scale = "c";
 var time_scale_slope = "m";
 var time_scale_profile = "m";
 var time_scale_long = "Minutes";
-var temp_scale_display = "F";
-var kwh_rate = 0.07;
-var currency_type = "CAD";
+var temp_scale_display = "C";
+var kwh_rate = 0.26;
+var currency_type = "AUD";
 
 var host = "ws://" + window.location.hostname + ":" + window.location.port;
 var ws_status = new WebSocket(host+"/status");
@@ -112,21 +112,20 @@ function updateProfileTable()
     var color = "";
 
     var html = '<h3>Profile Points</h3><div class="table-responsive" style="scroll: none"><table class="table table-striped">';
-        html += '<tr><th style="width: 50px">#</th><th>Target Time in ' + time_scale_long+ '</th><th>Target Temperature in °'+temp_scale_display+'</th><th>Rate in &deg;'+temp_scale_display+'/'+time_scale_slope+'</th><th></th></tr>';
+        html += '<tr><th style="width: 50px">#</th><th>Target Time in ' + time_scale_long+ '</th><th>Target Temperature in °'+temp_scale_display+'</th><th>Slope in &deg;'+temp_scale_display+'/'+time_scale_slope+'</th><th></th></tr>';
 
     for(var i=0; i<graph.profile.data.length;i++)
     {
-        //this needs to be removed to wortk only with tem, hold, ramp scenario
+
         if (i>=1) dps =  ((graph.profile.data[i][1]-graph.profile.data[i-1][1])/(graph.profile.data[i][0]-graph.profile.data[i-1][0]) * 10) / 10;
         if (dps  > 0) { slope = "up";     color="rgba(206, 5, 5, 1)"; } else
         if (dps  < 0) { slope = "down";   color="rgba(23, 108, 204, 1)"; dps *= -1; } else
         if (dps == 0) { slope = "right";  color="grey"; }
 
         html += '<tr><td><h4>' + (i+1) + '</h4></td>';
-        html += '<td><input type="text" class="form-control" readonly id="profiletable-0-'+i+'" value="'+ timeProfileFormatter(graph.profile.data[i][0],true) + '" style="width: 60px" /></td>';
+        html += '<td><input type="text" class="form-control" id="profiletable-0-'+i+'" value="'+ timeProfileFormatter(graph.profile.data[i][0],true) + '" style="width: 60px" /></td>';
         html += '<td><input type="text" class="form-control" id="profiletable-1-'+i+'" value="'+ graph.profile.data[i][1] + '" style="width: 60px" /></td>';
-        //html += '<td><div class="input-group"><span class="glyphicon glyphicon-circle-arrow-' + slope + ' input-group-addon ds-trend" style="background: '+color+'"></span><input type="text" class="form-control ds-input"  value="' + formatDPS(dps) + '" style="width: 100px" /></div></td>';
-	html += '<td><div class="input-group"><span class="glyphicon glyphicon-circle-arrow-' + slope + ' input-group-addon ds-trend" style="background: '+color+'"></span><input type="text" class="form-control-rate ds-input"  id="rate-'+i+'"  value="' + formatDPS(dps) + '" style="width: 100px" /></div></td>';
+        html += '<td><div class="input-group"><span class="glyphicon glyphicon-circle-arrow-' + slope + ' input-group-addon ds-trend" style="background: '+color+'"></span><input type="text" class="form-control ds-input" readonly value="' + formatDPS(dps) + '" style="width: 100px" /></div></td>';
         html += '<td>&nbsp;</td></tr>';
     }
 
@@ -135,35 +134,6 @@ function updateProfileTable()
     $('#profile_table').html(html);
 
     //Link table to graph
-	
-	 $(".form-control-rate").change(function(e)
-        {
-            var id = $(this)[0].id; //e.currentTarget.attributes.id
-            var value = parseInt($(this)[0].value);
-            var fields = id.split("-");
-            var row = parseInt(fields[1]);
-	    
-            console.log("Rate row=" + row);
-		 
-            if (graph.profile.data.length > 0) {
-		    if (row == 0) {
-		       var newTimeTarget = graph.profile.data[row][1]/value;
-                       graph.profile.data[row][0] = timeProfileFormatter(newTimeTarget,false);   
-		    }
-		    else {
-		     
-		       var newTimeTarget = ((graph.profile.data[row][1] - graph.profile.data[row-1][1])/value) + graph.profile.data[row-1][0];
-                       graph.profile.data[row][0] = timeProfileFormatter(newTimeTarget,false);   
-		    }
-		graph.plot = $.plot("#graph_container", [ graph.profile, graph.live, graph.movingProfile ], getOptions());
-            }
-            
-            
-       
-            updateProfileTable();
-
-        });
- 
     $(".form-control").change(function(e)
         {
             var id = $(this)[0].id; //e.currentTarget.attributes.id
