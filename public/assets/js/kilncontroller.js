@@ -271,6 +271,7 @@ function enterEditMode()
     $('#edit').show();
     $('#profile_selector').hide();
     $('#btn_controls').hide();
+    $('#profile_table').slideDown();
     console.log(profiles);
     $('#form_profile_name').val(profiles[selected_profile].name);
     graph.profile.points.show = true;
