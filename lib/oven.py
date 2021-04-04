@@ -105,6 +105,7 @@ class Oven (threading.Thread):
                     runtime_delta = datetime.datetime.now() - self.start_time
                     self.runtime = runtime_delta.total_seconds()
                 log.info("running at %.1f deg F (Target: %.1f) , heat %.2f" % (self.temp_sensor.temperature, self.target, self.heat))
+                log.info("runtime: %.1f" % self.runtime)
                 self.target = self.profile.get_target_temperature(self.runtime, self.temp_sensor.temperature)
                 pid = self.pid.compute(self.target, self.temp_sensor.temperature)
 
