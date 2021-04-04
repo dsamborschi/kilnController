@@ -166,11 +166,9 @@ class Oven (threading.Thread):
                  time.sleep(self.time_step * value)
                  GPIO.output(config.gpio_heat, GPIO.HIGH)   
                else:
-                log.info("KILN POWER ON ")
                  GPIO.output(config.gpio_heat, GPIO.HIGH)
                  time.sleep(self.time_step * value)
-                 GPIO.output(config.gpio_heat, GPIO.LOW)   
-                 log.info("KILN POWER OFF ")
+                 GPIO.output(config.gpio_heat, GPIO.LOW)
         else:
             self.heat = 0.0
             if gpio_available:
