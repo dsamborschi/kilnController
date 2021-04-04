@@ -125,7 +125,7 @@ function updateProfileTable()
         html += '<tr><td><h4>' + (i+1) + '</h4></td>';
         html += '<td><input type="text" class="form-control" id="profiletable-0-'+i+'" value="'+ timeProfileFormatter(graph.profile.data[i][0],true) + '" style="width: 60px" /></td>';
         html += '<td><input type="text" class="form-control" id="profiletable-1-'+i+'" value="'+ graph.profile.data[i][1] + '" style="width: 60px" /></td>';
-        html += '<td><div class="input-group"><span class="glyphicon glyphicon-circle-arrow-' + slope + ' input-group-addon ds-trend" style="background: '+color+'"></span><input type="text" class="form-control ds-input"  value="' + formatDPS(dps) + '" style="width: 100px" /></div></td>';
+        html += '<td><div class="input-group"><span class="glyphicon glyphicon-circle-arrow-' + slope + ' input-group-addon ds-trend" style="background: '+color+'"></span><input type="text" class="form-control ds-input"  read-only value="' + formatDPS(dps) + '" style="width: 100px" /></div></td>';
         html += '<td>&nbsp;</td></tr>';
     }
 
