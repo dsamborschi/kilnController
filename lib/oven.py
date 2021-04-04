@@ -21,12 +21,7 @@ try:
         from max31855spi import MAX31855SPI, MAX31855SPIError
         log.info("import MAX31855SPI")
         spi_reserved_gpio = [7, 8, 9, 10, 11]
-        if config.gpio_air in spi_reserved_gpio:
-            raise Exception("gpio_air pin %s collides with SPI pins %s" % (config.gpio_air, spi_reserved_gpio))
-        if config.gpio_cool in spi_reserved_gpio:
-            raise Exception("gpio_cool pin %s collides with SPI pins %s" % (config.gpio_cool, spi_reserved_gpio))
-        if config.gpio_door in spi_reserved_gpio:
-            raise Exception("gpio_door pin %s collides with SPI pins %s" % (config.gpio_door, spi_reserved_gpio))
+       
         if config.gpio_heat in spi_reserved_gpio:
             raise Exception("gpio_heat pin %s collides with SPI pins %s" % (config.gpio_heat, spi_reserved_gpio))
     if config.max6675:
@@ -42,9 +37,7 @@ try:
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
     GPIO.setup(config.gpio_heat, GPIO.OUT)
-    GPIO.setup(config.gpio_cool, GPIO.OUT)
-    GPIO.setup(config.gpio_air, GPIO.OUT)
-    GPIO.setup(config.gpio_door, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
 
     gpio_available = True
 except ImportError:
@@ -84,11 +77,8 @@ class Oven (threading.Thread):
         self.start_time = 0
         self.runtime = 0
         self.target = 0
-        self.door = self.get_door_state()
         self.state = Oven.STATE_IDLE
         self.set_heat(False)
-        self.set_cool(False)
-        self.set_air(False)
         self.pid = PID(ki=config.pid_ki, kd=config.pid_kd, kp=config.pid_kp)
 
     def run_profile(self, profile):
@@ -107,8 +97,7 @@ class Oven (threading.Thread):
         last_temp = 0
         pid = 0
         while True:
-            #self.door = self.get_door_state()
-
+  
             if self.state == Oven.STATE_RUNNING:
                 if self.simulate:
                     self.runtime += 0.5
@@ -121,7 +110,7 @@ class Oven (threading.Thread):
 
                 log.info("pid: %.3f" % pid)
 
-                #self.set_cool(pid <= -1)
+        
                 if(pid > 0):
                     # The temp should be changing with the heat on
                     # Count the number of time_steps encountered with no change and the heat on
@@ -142,11 +131,7 @@ class Oven (threading.Thread):
                 last_temp = self.temp_sensor.temperature
                 self.set_heat(pid)
 
-                #if self.temp_sensor.temperature > 200:
-                    #self.set_air(False)
-                #elif self.temp_sensor.temperature < 180:
-                #    self.set_air(True)
-
+             
                 if self.profile.finished():
                     self.reset()
 
@@ -177,26 +162,8 @@ class Oven (threading.Thread):
                else:
                  GPIO.output(config.gpio_heat, GPIO.LOW)
 
-    def set_cool(self, value):
-        if value:
-            self.cool = 1.0
-            if gpio_available:
-                GPIO.output(config.gpio_cool, GPIO.LOW)
-        else:
-            self.cool = 0.0
-            if gpio_available:
-                GPIO.output(config.gpio_cool, GPIO.HIGH)
-
-    def set_air(self, value):
-        if value:
-            self.air = 1.0
-            if gpio_available:
-                GPIO.output(config.gpio_air, GPIO.LOW)
-        else:
-            self.air = 0.0
-            if gpio_available:
-                GPIO.output(config.gpio_air, GPIO.HIGH)
-
+   
+    
     def get_state(self):
         state = {
             'runtime': self.runtime,
@@ -204,18 +171,11 @@ class Oven (threading.Thread):
             'target': self.target,
             'state': self.state,
             'heat': self.heat,
-            'cool': self.cool,
-            'air': self.air,
             'totaltime': self.profile.get_duration() if self.profile else 0,
-            'door': self.door
+          
         }
         return state
 
-    def get_door_state(self):
-        if gpio_available:
-            return "OPEN" if GPIO.input(config.gpio_door) else "CLOSED"
-        else:
-            return "UNKNOWN"
 
 
 class TempSensor(threading.Thread):
@@ -294,10 +254,8 @@ class TempSensorSimulate(TempSensor):
             t_h -= p_ho * self.time_step / c_heat
 
             #energy flux oven -> env
-            if self.oven.cool:
-                p_env = (t - t_env) / R_o_cool
-            else:
-                p_env = (t - t_env) / R_o_nocool
+          
+            p_env = (t - t_env) / R_o_nocool
 
             #temperature change of oven by cooling to env
             t -= p_env * self.time_step / c_oven
