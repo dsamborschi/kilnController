@@ -152,6 +152,7 @@ class Oven (threading.Thread):
 
             if pid > 0:
                 time.sleep(self.time_step * (1 - pid))
+                log.info("Sleep for %.1f" % (self.time_step * (1 - pid)))
             else:
                 time.sleep(self.time_step)
 
