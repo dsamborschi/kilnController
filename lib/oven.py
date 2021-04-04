@@ -107,7 +107,7 @@ class Oven (threading.Thread):
         last_temp = 0
         pid = 0
         while True:
-            self.door = self.get_door_state()
+            #self.door = self.get_door_state()
 
             if self.state == Oven.STATE_RUNNING:
                 if self.simulate:
@@ -115,13 +115,13 @@ class Oven (threading.Thread):
                 else:
                     runtime_delta = datetime.datetime.now() - self.start_time
                     self.runtime = runtime_delta.total_seconds()
-                log.info("running at %.1f deg F (Target: %.1f) , heat %.2f, cool %.2f" % (self.temp_sensor.temperature, self.target, self.heat, self.cool))
+                log.info("running at %.1f deg F (Target: %.1f) , heat %.2f" % (self.temp_sensor.temperature, self.target, self.heat))
                 self.target = self.profile.get_target_temperature(self.runtime, self.temp_sensor.temperature)
                 pid = self.pid.compute(self.target, self.temp_sensor.temperature)
 
                 log.info("pid: %.3f" % pid)
 
-                self.set_cool(pid <= -1)
+                #self.set_cool(pid <= -1)
                 if(pid > 0):
                     # The temp should be changing with the heat on
                     # Count the number of time_steps encountered with no change and the heat on
@@ -142,10 +142,10 @@ class Oven (threading.Thread):
                 last_temp = self.temp_sensor.temperature
                 self.set_heat(pid)
 
-                if self.temp_sensor.temperature > 200:
-                    self.set_air(False)
-                elif self.temp_sensor.temperature < 180:
-                    self.set_air(True)
+                #if self.temp_sensor.temperature > 200:
+                    #self.set_air(False)
+                #elif self.temp_sensor.temperature < 180:
+                #    self.set_air(True)
 
                 if self.profile.finished():
                     self.reset()
