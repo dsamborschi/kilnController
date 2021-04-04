@@ -225,6 +225,22 @@ function runTask()
 
 }
 
+function pauseTask()
+{
+    var cmd =
+    {
+        "cmd": "PAUSE",
+        "profile": profiles[selected_profile]
+    }
+
+    graph.live.data = [];
+    graph.movingProfile.data = [];
+    graph.plot = $.plot("#graph_container", [ graph.profile, graph.live, graph.movingProfile ] , getOptions());
+
+    ws_control.send(JSON.stringify(cmd));
+
+}
+
 function runTaskSimulation()
 {
     var cmd =
