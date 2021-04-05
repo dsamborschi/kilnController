@@ -113,7 +113,7 @@ class Oven (threading.Thread):
 
         
                 if(pid > 0):
-                    # The temp should be changing with the heat on
+                    # The temp should44 be changing with the heat on
                     # Count the number of time_steps encountered with no change and the heat on
                     if last_temp == self.temp_sensor.temperature:
                         temperature_count += 1
