@@ -135,7 +135,6 @@ class Oven(threading.Thread):
                     self.profile.pidStart = millis()
                     self.target = self.profile.get_target_temperature2(config.temp_scale)
 
-
                 pid = self.pid.compute(self.target, self.temp_sensor.temperature)
 
                 log.info("running at %.1f deg F (Target: %.1f) , heat %.2f, PID %.1f" % (
@@ -158,24 +157,13 @@ class Oven(threading.Thread):
                 time.sleep(self.time_step)
 
     def set_heat(self, value):
-        if value > 0:
-            self.heat = 1.0
-            if gpio_available:
-                if config.heater_invert:
-                    GPIO.output(config.gpio_heat, GPIO.LOW)
-                    time.sleep(self.time_step * value)
-                    GPIO.output(config.gpio_heat, GPIO.HIGH)
-                else:
-                    GPIO.output(config.gpio_heat, GPIO.HIGH)
-                    time.sleep(self.time_step * value)
-                    GPIO.output(config.gpio_heat, GPIO.LOW)
-        else:
-            self.heat = 0.0
-            if gpio_available:
-                if config.heater_invert:
-                    GPIO.output(config.gpio_heat, GPIO.HIGH)
-                else:
-                    GPIO.output(config.gpio_heat, GPIO.LOW)
+        if gpio_available:
+            if value >= millis() - self.profile.pidStart:
+                self.heat = 1.0
+                GPIO.output(config.gpio_heat, GPIO.HIGH)
+            else:
+                self.heat = 0.0
+                GPIO.output(config.gpio_heat, GPIO.LOW)
 
     def get_state(self):
         state = {
