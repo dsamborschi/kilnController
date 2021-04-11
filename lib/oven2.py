@@ -138,7 +138,7 @@ class Oven(threading.Thread):
                 log.info("running at %.1f deg F (Target: %.1f) , heat %.2f" % (
                     self.temp_sensor.temperature, self.target, self.heat))
 
-                log.info("target: %.1f" % self.target)
+
                 pid = self.pid.compute(self.target, self.temp_sensor.temperature)
                 log.info("pid: %.3f" % pid)
 

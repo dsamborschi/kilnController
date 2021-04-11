@@ -56,8 +56,7 @@ def main():
 
     profile_json = json.dumps(profiles[0])
     profile = Profile(profile_json)
-    #profile.segNum = 1
-    #profile.rampStart = millis()
+
     oven = Oven(simulate=True, time_step=10)
     oven.run_profile(profile)
 
