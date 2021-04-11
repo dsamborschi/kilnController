@@ -98,7 +98,7 @@ class Oven(threading.Thread):
         self.runtime = 0
         self.target = 0
         self.state = Oven.STATE_IDLE
-        self.set_heat(False, self.profile.pidStart)
+        GPIO.output(config.gpio_heat, GPIO.LOW)
         self.pid = PID(ki=config.pid_ki, kd=config.pid_kd, kp=config.pid_kp)
 
     def run_profile(self, profile):
