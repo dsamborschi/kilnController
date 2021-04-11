@@ -30,7 +30,7 @@ log.info("Starting kilncontrollerd")
 script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, script_dir + '/lib/')
 profile_path = os.path.join(script_dir, "storage", "profiles")
-from oven import Oven, Profile
+from oven2 import Oven, Profile
 from ovenWatcher import OvenWatcher
 
 app = bottle.Bottle()
