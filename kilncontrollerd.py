@@ -5,7 +5,9 @@ import sys
 import logging
 import json
 
-from lib import bottle
+import bottle
+import gevent
+import geventwebsocket
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 
