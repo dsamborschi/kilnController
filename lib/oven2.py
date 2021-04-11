@@ -7,25 +7,45 @@ import json
 
 import config
 
+from utils import millis
+
 log = logging.getLogger(__name__)
 
+# max number of segments
+max_number_segs = 20
+# Hold time for each segment (min).  This starts after it reaches target temp.
+# seg_hold[max_number_segs]
+# Rate of temp change for each segment (deg/hr).
+# seg_ramp[max_number_segs]
+# Target temp for each segment (degrees).
+# seg_temp[max_number_segs]
+# Current segment number running in firing schedule.  0 means a schedule hasn't been selected yet.
+seg_num = 0
+# Current segment phase.  0 = ramp.  1 = hold.
+seg_phase = 0
+# This is how close the temp reading needs to be to the set point to shift to the hold phase (degrees).  Set to zero or a positive integer.
+temp_range = 2
+pid_cycle = 2500
 try:
     if config.max31855 + config.max6675 + config.max31855spi > 1:
         log.error("choose (only) one converter IC")
         exit()
     if config.max31855:
         from max31855 import MAX31855, MAX31855Error
+
         log.info("import MAX31855")
     if config.max31855spi:
         import Adafruit_GPIO.SPI as SPI
         from max31855spi import MAX31855SPI, MAX31855SPIError
+
         log.info("import MAX31855SPI")
         spi_reserved_gpio = [7, 8, 9, 10, 11]
-       
+
         if config.gpio_heat in spi_reserved_gpio:
             raise Exception("gpio_heat pin %s collides with SPI pins %s" % (config.gpio_heat, spi_reserved_gpio))
     if config.max6675:
         from max6675 import MAX6675, MAX6675Error
+
         log.info("import MAX6675")
     sensor_available = True
 except ImportError:
@@ -34,10 +54,10 @@ except ImportError:
 
 try:
     import RPi.GPIO as GPIO
+
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
     GPIO.setup(config.gpio_heat, GPIO.OUT)
-
 
     gpio_available = True
 except ImportError:
@@ -46,7 +66,7 @@ except ImportError:
     gpio_available = False
 
 
-class Oven (threading.Thread):
+class Oven(threading.Thread):
     STATE_IDLE = "IDLE"
     STATE_RUNNING = "RUNNING"
 
@@ -85,6 +105,11 @@ class Oven (threading.Thread):
         log.info("Running profile %s" % profile.name)
         self.profile = profile
         self.profile.running = True
+        # Ramp-hold init
+        self.profile.rampStart = millis()
+        self.profile.pidStart = millis()
+        self.profile.segNum = 1
+
         self.state = Oven.STATE_RUNNING
         self.start_time = datetime.datetime.now()
         log.info("Starting")
@@ -98,43 +123,31 @@ class Oven (threading.Thread):
         pid = 0
 
         while True:
-  
+
             if self.state == Oven.STATE_RUNNING:
                 if self.simulate:
                     self.runtime += 0.5
                 else:
                     runtime_delta = datetime.datetime.now() - self.start_time
                     self.runtime = runtime_delta.total_seconds()
-                log.info("running at %.1f deg F (Target: %.1f) , heat %.2f" % (self.temp_sensor.temperature, self.target, self.heat))
-                log.info("runtime: %.1f" % self.runtime)
-                self.target = self.profile.get_target_temperature(self.runtime, self.temp_sensor.temperature)
-                log.info("target temp: %.1f, sensor temp: %.2f" % (self.target, self.temp_sensor.temperature))
 
+                if millis() - self.profile.pidStart >= pid_cycle:
+                    self.profile.pidStart = millis()
+                    self.target = self.profile.get_target_temperature2(config.temp_scale)
+
+                log.info("running at %.1f deg F (Target: %.1f) , heat %.2f" % (
+                    self.temp_sensor.temperature, self.target, self.heat))
+
+                log.info("target: %.1f" % self.target)
                 pid = self.pid.compute(self.target, self.temp_sensor.temperature)
                 log.info("pid: %.3f" % pid)
 
-        
-                if(pid > 0):
-                    # The temp should44 be changing with the heat on
-                    # Count the number of time_steps encountered with no change and the heat on
-                    if last_temp == self.temp_sensor.temperature:
-                        temperature_count += 1
-                    else:
-                        temperature_count = 0
-                    # If the heat is on and nothing is changing, reset
-                    # The direction or amount of change does not matter
-                    # This prevents runaway in the event of a sensor read failure                   
-                    if temperature_count > 3600:
-                        log.info("Error reading sensor, oven temp not responding to heat.")
-                        self.reset()
-                else:
-                    temperature_count = 0
-                    
                 # Capture the last temperature value. This must be done before set_heat, since there is a sleep
                 last_temp = self.temp_sensor.temperature
                 self.set_heat(pid)
+                # Update the schedule segment
+                self.profile.update_seg(self.temp_sensor.temperature)
 
-             
                 if self.profile.finished():
                     self.reset()
 
@@ -149,24 +162,22 @@ class Oven (threading.Thread):
         if value > 0:
             self.heat = 1.0
             if gpio_available:
-               if config.heater_invert:
-                 GPIO.output(config.gpio_heat, GPIO.LOW)
-                 time.sleep(self.time_step * value)
-                 GPIO.output(config.gpio_heat, GPIO.HIGH)   
-               else:
-                 GPIO.output(config.gpio_heat, GPIO.HIGH)
-                 time.sleep(self.time_step * value)
-                 GPIO.output(config.gpio_heat, GPIO.LOW)
+                if config.heater_invert:
+                    GPIO.output(config.gpio_heat, GPIO.LOW)
+                    time.sleep(self.time_step * value)
+                    GPIO.output(config.gpio_heat, GPIO.HIGH)
+                else:
+                    GPIO.output(config.gpio_heat, GPIO.HIGH)
+                    time.sleep(self.time_step * value)
+                    GPIO.output(config.gpio_heat, GPIO.LOW)
         else:
             self.heat = 0.0
             if gpio_available:
-               if config.heater_invert:
-                 GPIO.output(config.gpio_heat, GPIO.HIGH)
-               else:
-                 GPIO.output(config.gpio_heat, GPIO.LOW)
+                if config.heater_invert:
+                    GPIO.output(config.gpio_heat, GPIO.HIGH)
+                else:
+                    GPIO.output(config.gpio_heat, GPIO.LOW)
 
-   
-    
     def get_state(self):
         state = {
             'runtime': self.runtime,
@@ -175,10 +186,9 @@ class Oven (threading.Thread):
             'state': self.state,
             'heat': self.heat,
             'totaltime': self.profile.get_duration() if self.profile else 0,
-          
+
         }
         return state
-
 
 
 class TempSensor(threading.Thread):
@@ -195,16 +205,16 @@ class TempSensorReal(TempSensor):
         if config.max6675:
             log.info("init MAX6675")
             self.thermocouple = MAX6675(config.gpio_sensor_cs,
-                                     config.gpio_sensor_clock,
-                                     config.gpio_sensor_data,
-                                     config.temp_scale)
+                                        config.gpio_sensor_clock,
+                                        config.gpio_sensor_data,
+                                        config.temp_scale)
 
         if config.max31855:
             log.info("init MAX31855")
             self.thermocouple = MAX31855(config.gpio_sensor_cs,
-                                     config.gpio_sensor_clock,
-                                     config.gpio_sensor_data,
-                                     config.temp_scale)
+                                         config.gpio_sensor_clock,
+                                         config.gpio_sensor_data,
+                                         config.temp_scale)
 
         if config.max31855spi:
             log.info("init MAX31855-spi")
@@ -226,40 +236,41 @@ class TempSensorSimulate(TempSensor):
         self.sleep_time = sleep_time
 
     def run(self):
-        t_env      = config.sim_t_env
-        c_heat     = config.sim_c_heat
-        c_oven     = config.sim_c_oven
-        p_heat     = config.sim_p_heat
+        t_env = config.sim_t_env
+        c_heat = config.sim_c_heat
+        c_oven = config.sim_c_oven
+        p_heat = config.sim_p_heat
         R_o_nocool = config.sim_R_o_nocool
-        R_o_cool   = config.sim_R_o_cool
+        R_o_cool = config.sim_R_o_cool
         R_ho_noair = config.sim_R_ho_noair
-        R_ho_air   = config.sim_R_ho_air
+        R_ho_air = config.sim_R_ho_air
 
         t = t_env  # deg C  temp in oven
-        t_h = t    # deg C temp of heat element
+        t_h = t  # deg C temp of heat element
         while True:
-            #heating energy
+            # heating energy
             Q_h = p_heat * self.time_step * self.oven.heat
 
-            #temperature change of heat element by heating
+            # temperature change of heat element by heating
             t_h += Q_h / c_heat
 
             R_ho = R_ho_noair
 
-            #energy flux heat_el -> oven
+            # energy flux heat_el -> oven
             p_ho = (t_h - t) / R_ho
 
-            #temperature change of oven and heat el
-            t   += p_ho * self.time_step / c_oven
+            # temperature change of oven and heat el
+            t += p_ho * self.time_step / c_oven
             t_h -= p_ho * self.time_step / c_heat
 
-            #energy flux oven -> env
-          
+            # energy flux oven -> env
+
             p_env = (t - t_env) / R_o_nocool
 
-            #temperature change of oven by cooling to env
+            # temperature change of oven by cooling to env
             t -= p_env * self.time_step / c_oven
-            log.debug("energy sim: -> %dW heater: %.0f -> %dW oven: %.0f -> %dW env" % (int(p_heat * self.oven.heat), t_h, int(p_ho), t, int(p_env)))
+            log.debug("energy sim: -> %dW heater: %.0f -> %dW oven: %.0f -> %dW env" % (
+                int(p_heat * self.oven.heat), t_h, int(p_ho), t, int(p_env)))
             self.temperature = t
 
             time.sleep(self.sleep_time)
@@ -269,20 +280,91 @@ class Profile:
     def __init__(self, json_data):
         obj = json.loads(json_data)
         self.name = obj["name"]
-        self.data = [ (0, 0) ] + sorted(obj["data"])
-        self.timeDiffs = [ (0, 0) ]
-        for i in range(1, len(self.data)):
-            self.timeDiffs.append( ( self.data[i][0] - self.data[i-1][0], self.data[i][1] ) )
+        self.type = obj["type"]
+        self.timeDiffs = [(0, 0)]
+        self.segRamps = []
+        self.segTemps = []
+        self.segHolds = []
+        self.segPhase = 0
+        # Exact time the hold phase of the segment started (ms).  Based on now().
+        self.holdStart = 0
+        self.segNum = 0
+        self.rampStart = 0
+        self.lastTemp = 0
+
+        if self.type == "profile":
+            self.data = [(0, 0)] + sorted(obj["data"])
+            for i in range(1, len(self.data)):
+                self.timeDiffs.append((self.data[i][0] - self.data[i - 1][0], self.data[i][1]))
+        if self.type == "ramp-hold":
+            self.data = obj["data"]
+            for i in range(0, len(self.data)):
+                self.segRamps.append(self.data[i][0])
+                self.segTemps.append(self.data[i][1])
+                self.segHolds.append(self.data[i][2])
+
+            # Fix Ramp values so it will show the correct sign (+/-).  This will help to determine when to start hold.
+            for i in range(0, len(self.segRamps)):
+                self.segRamps[i] = abs(self.segRamps[i])
+                if i >= 1:
+                    if self.segTemps[i] < self.segTemps[i - 1]:
+                        self.segRamps[i] = -self.segRamps[i]
 
         self.currentState = 1
         self.numStates = len(self.timeDiffs)
-
+        self.numSegments = len(self.segTemps)
         self.running = False
         self.lastStateChange = 0
         self.totalTime = self.data[-1][0]
         self.overtime = 0
         log.info(str(self.timeDiffs))
         log.info(str(self.totalTime))
+
+    def update_seg(self, temp_sensor):
+        # Start the hold phase
+        if ((self.segPhase == 0 and self.segRamps[self.segNum - 1] < 0 and temp_sensor <= (
+                self.segTemps[self.segNum - 1] + temp_range)) or
+                (self.segPhase == 0 and self.segRamps[self.segNum - 1] >= 0 and temp_sensor >= (
+                        self.segTemps[self.segNum - 1] - temp_range))):
+            self.segPhase = 1
+            self.holdStart = millis()
+
+        # Go to the next segment
+        if self.segPhase == 1 and (millis() - self.holdStart >= self.segHolds[self.segNum - 1] * 60000):
+            self.segNum = self.segNum + 1
+            self.segPhase = 0
+            self.rampStart = millis()
+
+        # Check if complete
+        if self.segNum - 1 > self.numSegments:
+            self.running = False
+
+    def get_target_temperature2(self, temp_scale):
+        # Get the last target temperature
+        if self.segNum == 1:  # Set to room temperature for first segment
+            if temp_scale == 'c':
+                self.lastTemp = 24
+
+            if temp_scale == 'f':
+                self.lastTemp = 75
+
+        else:
+            self.lastTemp = self.segTemps[self.segNum - 2]
+
+        # Calculate the new set point value.  Don't set above / below target temp
+        if self.segPhase == 0:
+            ramp_hours = (millis() - self.rampStart) / 3600000.0
+            calc_set_point = self.lastTemp + (self.segRamps[self.segNum - 1] * ramp_hours)  # Ramp
+            if self.segRamps[self.segNum - 1] >= 0 and calc_set_point >= self.segTemps[self.segNum - 1]:
+                calc_set_point = self.segTemps[self.segNum - 1]
+
+            if self.segRamps[self.segNum - 1] < 0 and calc_set_point <= self.segTemps[self.segNum - 1]:
+                calc_set_point = self.segTemps[self.segNum - 1]
+
+        else:
+            calc_set_point = self.segTemps[self.segNum - 1]  # Hold
+
+        return calc_set_point
 
     def finished(self):
         return not self.running
@@ -343,21 +425,10 @@ class Profile:
 
         return targetTemp
 
-    """
-    Tests to see if the target temperature has been acquired.
-    """
-    def check_target(self, temperature):
-        previous, next = self.get_surrounding_points()
-        result = True
 
-        if previous[1] < next[1]:
-            if temperature < next[1]:
-                result = False
-        elif previous[1] > next[1]:
-            if temperature > next[1]:
-                result = False
-
-        return result
+"""
+Tests to see if the target temperature has been acquired.
+"""
 
 
 class PID():

@@ -1,5 +1,5 @@
 import threading,logging,json,time,datetime
-from oven import Oven
+from oven2 import Oven
 log = logging.getLogger(__name__)
 
 class OvenWatcher(threading.Thread):
@@ -53,10 +53,10 @@ class OvenWatcher(threading.Thread):
             'log': self.last_log,
             #'started': self.started
         }
-        print backlog
+        print(backlog)
         backlog_json = json.dumps(backlog)
         try:
-            print backlog_json
+            print(backlog_json)
             observer.send(backlog_json)
         except:
             log.error("Could not send backlog to new observer")

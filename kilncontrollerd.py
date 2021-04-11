@@ -4,14 +4,10 @@ import os
 import sys
 import logging
 import json
-import traceback
 
-import bottle
-import gevent
-import geventwebsocket
+from lib import bottle
 from gevent.pywsgi import WSGIServer
-from geventwebsocket.handler import WebSocketHandler 
-from geventwebsocket import WebSocketError
+from geventwebsocket.handler import WebSocketHandler
 
 from pymongo import MongoClient
 
@@ -33,7 +29,7 @@ script_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, script_dir + '/lib/')
 profile_path = os.path.join(script_dir, "storage", "profiles")
 from oven import Oven, Profile
-from ovenWatcher import OvenWatcher
+from ovenWatcher import OvenWatcherprofile_path
 
 app = bottle.Bottle()
 oven = Oven()
@@ -48,8 +44,8 @@ def index():
 @app.route('/kilncontroller/:filename#.*#')
 def send_static(filename):
     log.debug("serving %s" % filename)
-    return bottle.static_file(filename, 
-        root=os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), 
+    return bottle.static_file(filename,
+                              root=os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
         "public"))
 
 
