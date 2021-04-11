@@ -142,7 +142,7 @@ class Oven(threading.Thread):
 
                 # Capture the last temperature value. This must be done before set_heat, since there is a sleep
                 last_temp = self.temp_sensor.temperature
-                self.set_heat(pid)
+                self.set_heat(pid, self.profile.pidStart)
                 # Update the schedule segment
                 self.profile.update_seg(self.temp_sensor.temperature)
 
@@ -156,9 +156,9 @@ class Oven(threading.Thread):
                 log.info("pid is %.1f. Sleep for %.2f" % (pid, self.time_step))
                 time.sleep(self.time_step)
 
-    def set_heat(self, value):
+    def set_heat(self, value, pidstart):
         if gpio_available:
-            if value >= millis() - self.profile.pidStart:
+            if value >= millis() - pidstart:
                 self.heat = 1.0
                 GPIO.output(config.gpio_heat, GPIO.HIGH)
             else:
