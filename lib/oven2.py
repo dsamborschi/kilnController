@@ -135,12 +135,11 @@ class Oven(threading.Thread):
                     self.profile.pidStart = millis()
                     self.target = self.profile.get_target_temperature2(config.temp_scale)
 
-                log.info("running at %.1f deg F (Target: %.1f) , heat %.2f" % (
-                    self.temp_sensor.temperature, self.target, self.heat))
-
 
                 pid = self.pid.compute(self.target, self.temp_sensor.temperature)
-                log.info("pid: %.3f" % pid)
+
+                log.info("running at %.1f deg F (Target: %.1f) , heat %.2f, PID %.1f" % (
+                    self.temp_sensor.temperature, self.target, self.heat, pid))
 
                 # Capture the last temperature value. This must be done before set_heat, since there is a sleep
                 last_temp = self.temp_sensor.temperature
