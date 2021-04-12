@@ -162,9 +162,11 @@ class Oven(threading.Thread):
             if value >= millis() - pidstart:
                 self.heat = 1.0
                 GPIO.output(config.gpio_heat, GPIO.HIGH)
+                log.info("Heat is ON")
             else:
                 self.heat = 0.0
                 GPIO.output(config.gpio_heat, GPIO.LOW)
+                log.info("Heat is OFF")
 
     def get_state(self):
         state = {
