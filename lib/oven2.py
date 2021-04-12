@@ -80,6 +80,7 @@ class Oven(threading.Thread):
         self.daemon = True
         self.simulate = simulate
         self.time_step = time_step
+        self.heat = 0
         self.reset()
         if simulate:
             self.temp_sensor = TempSensorSimulate(self, 0.5, self.time_step)
