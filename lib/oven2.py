@@ -162,12 +162,15 @@ class Oven(threading.Thread):
             self.heat = 1.0
             if gpio_available:
                 GPIO.output(config.gpio_heat, GPIO.HIGH)
+                log.info("Heat is ON")
                 time.sleep(self.time_step * value)
                 GPIO.output(config.gpio_heat, GPIO.LOW)
+                log.info("Heat is OFF")
         else:
             self.heat = 0.0
             if gpio_available:
                 GPIO.output(config.gpio_heat, GPIO.LOW)
+                log.info("Heat is OFF")
 
     def set_heat2(self, value, pidstart):
         if gpio_available:
