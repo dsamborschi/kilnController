@@ -142,19 +142,12 @@ class Oven(threading.Thread):
 
                 # Capture the last temperature value. This must be done before set_heat, since there is a sleep
                 last_temp = self.temp_sensor.temperature
-                self.set_heat(pid)
+                self.set_heat2(pid, self.profile.pidStart)
                 # Update the schedule segment
                 self.profile.update_seg(self.temp_sensor.temperature)
 
                 if self.profile.finished():
                     self.reset()
-
-            if pid > 0:
-                time.sleep(self.time_step * (1 - pid))
-                log.info("pid is %.1f. Sleep for %.2f" % (pid, self.time_step * (1 - pid)))
-            else:
-                log.info("pid is %.1f. Sleep for %.2f" % (pid, self.time_step))
-                time.sleep(self.time_step)
 
     def set_heat(self, value):
         if value > 0:
