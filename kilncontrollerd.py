@@ -11,7 +11,7 @@ import geventwebsocket
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 
-from pymongo import MongoClient
+#from pymongo import MongoClient
 
 
 try:
@@ -182,9 +182,9 @@ def get_profiles():
 
 def save_profile(profile, force=False):
     
-    client = MongoClient("mongodb://10.0.0.169:28017")
-    db=client["kiln"]
-    collection=db["profiles"]
+    # client = MongoClient("mongodb://10.0.0.169:28017")
+    # db=client["kiln"]
+    # collection=db["profiles"]
 
     profile_json = json.dumps(profile)
     filename = profile['name'] + ".json"

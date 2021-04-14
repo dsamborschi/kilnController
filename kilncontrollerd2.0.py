@@ -60,7 +60,7 @@ def main():
     oven = Oven(simulate=True, time_step=10)
     oven.run_profile(profile)
 
-    #profile.get_target_temperature2(config.temp_scale)
+
 
 
 
