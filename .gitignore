@@ -5,6 +5,5 @@
 *.swp
 .DStore/
 thumbs.db
-config.py
 .idea/*
 kilnController.sh
