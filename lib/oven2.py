@@ -167,7 +167,7 @@ class Oven(threading.Thread):
                 log.info("Heat is OFF")
 
     def set_heat2(self, value, pidstart):
-        if value >= millis() - pidstart:
+        if value >= 0:
             self.heat = 1.0
             GPIO.output(config.gpio_heat, GPIO.HIGH)
             log.info("Heat is ON")
