@@ -100,7 +100,8 @@ class Oven(threading.Thread):
         self.runtime = 0
         self.target = 0
         self.state = Oven.STATE_IDLE
-        self.pid = PID(Kp=config.pid_kp, Ki=config.pid_ki, Kd=config.pid_kd, sample_time=pid_cycle/1000, output_limits=(0, pid_cycle/1000), auto_mode=True)
+        self.pid = PID(Kp=config.pid_kp, Ki=config.pid_ki, Kd=config.pid_kd, sample_time=pid_cycle / 1000,
+                       output_limits=(0, pid_cycle / 1000), auto_mode=True)
 
     def run_profile(self, profile):
         log.info("Running profile %s" % profile.name)
@@ -134,7 +135,7 @@ class Oven(threading.Thread):
 
                 if millis() - self.profile.pidStart >= pid_cycle:
                     self.profile.pidStart = millis()
-                    self.target = self.profile.update_PID(config.temp_scale)
+                    self.target = self.profile.update_pid()
                 self.pid.setpoint = self.target
                 pid = self.pid(self.temp_sensor.temperature)
 
@@ -166,15 +167,14 @@ class Oven(threading.Thread):
                 log.info("Heat is OFF")
 
     def set_heat2(self, value, pidstart):
-        if gpio_available:
-            if value >= millis() - pidstart:
-                self.heat = 1.0
-                GPIO.output(config.gpio_heat, GPIO.HIGH)
-                log.info("Heat is ON")
-            else:
-                self.heat = 0.0
-                GPIO.output(config.gpio_heat, GPIO.LOW)
-                log.info("Heat is OFF")
+        if value >= millis() - pidstart:
+            self.heat = 1.0
+            GPIO.output(config.gpio_heat, GPIO.HIGH)
+            log.info("Heat is ON")
+        else:
+            self.heat = 0.0
+            GPIO.output(config.gpio_heat, GPIO.LOW)
+            log.info("Heat is OFF")
 
     def get_state(self):
         state = {
@@ -337,13 +337,13 @@ class Profile:
         if self.segNum - 1 > self.numSegments:
             self.running = False
 
-    def update_PID(self, temp_scale):
+    def update_pid(self):
         # Get the last target temperature
         if self.segNum == 1:  # Set to room temperature for first segment
-            if temp_scale == 'c':
+            if config.temp_scale == 'c':
                 self.lastTemp = 24
 
-            if temp_scale == 'f':
+            if config.temp_scale == 'f':
                 self.lastTemp = 75
 
         else:
