@@ -135,7 +135,7 @@ class Oven(threading.Thread):
 
                 if millis() - self.profile.pidStart >= pid_cycle:
                     self.profile.pidStart = millis()
-                    self.target = self.profile.update_pid()
+                    self.target = self.profile.update_pid(self.temp_sensor.temperature)
                 self.pid.setpoint = self.target
                 pid = self.pid(self.temp_sensor.temperature)
 
@@ -338,15 +338,10 @@ class Profile:
         if self.segNum - 1 > self.numSegments:
             self.running = False
 
-    def update_pid(self):
+    def update_pid(self, temp_sensor):
         # Get the last target temperature
-        if self.segNum == 1:  # Set to room temperature for first segment
-            if config.temp_scale == 'c':
-                self.lastTemp = 24
-
-            if config.temp_scale == 'f':
-                self.lastTemp = 75
-
+        if self.segNum == 1:  # Set to terhmocouple temperature for first segment
+            self.lastTemp = temp_sensor
         else:
             self.lastTemp = self.segTemps[self.segNum - 2]
 
