@@ -100,6 +100,7 @@ class Oven(threading.Thread):
         self.runtime = 0
         self.target = 0
         self.state = Oven.STATE_IDLE
+        GPIO.output(config.gpio_heat, GPIO.LOW)
         self.pid = PID(Kp=config.pid_kp, Ki=config.pid_ki, Kd=config.pid_kd, sample_time=pid_cycle / 1000,
                        output_limits=(0, pid_cycle / 1000), auto_mode=True)
 
