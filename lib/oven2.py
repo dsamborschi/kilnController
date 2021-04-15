@@ -8,6 +8,7 @@ import json
 import config
 
 from utils import millis
+from simple_pid import PID
 
 log = logging.getLogger(__name__)
 
@@ -99,7 +100,7 @@ class Oven(threading.Thread):
         self.runtime = 0
         self.target = 0
         self.state = Oven.STATE_IDLE
-        self.pid = PID(ki=config.pid_ki, kd=config.pid_kd, kp=config.pid_kp)
+        self.pid = PID(Kp=config.pid_kp, Ki=config.pid_ki, Kd=config.pid_kd, sample_time=pid_cycle, output_limits=(0, pid_cycle), auto_mode=True)
 
     def run_profile(self, profile):
         log.info("Running profile %s" % profile.name)
@@ -133,9 +134,9 @@ class Oven(threading.Thread):
 
                 if millis() - self.profile.pidStart >= pid_cycle:
                     self.profile.pidStart = millis()
-                    self.target = self.profile.get_target_temperature2(config.temp_scale)
-
-                pid = self.pid.compute(self.target, self.temp_sensor.temperature)
+                    self.target = self.profile.update_PID(config.temp_scale)
+                self.pid.setpoint = self.target
+                pid = self.pid(self.temp_sensor.temperature)
 
                 log.info("running at %.1f deg F (Target: %.1f) , heat %.2f, PID %.1f" % (
                     self.temp_sensor.temperature, self.target, self.heat, pid))
@@ -336,7 +337,7 @@ class Profile:
         if self.segNum - 1 > self.numSegments:
             self.running = False
 
-    def get_target_temperature2(self, temp_scale):
+    def update_PID(self, temp_scale):
         # Get the last target temperature
         if self.segNum == 1:  # Set to room temperature for first segment
             if temp_scale == 'c':
@@ -426,29 +427,3 @@ class Profile:
 """
 Tests to see if the target temperature has been acquired.
 """
-
-
-class PID():
-    def __init__(self, ki=1, kp=1, kd=1):
-        self.ki = ki
-        self.kp = kp
-        self.kd = kd
-        self.lastNow = datetime.datetime.now()
-        self.iterm = 0
-        self.lastErr = 0
-
-    def compute(self, setpoint, ispoint):
-        now = datetime.datetime.now()
-        timeDelta = (now - self.lastNow).total_seconds()
-
-        error = float(setpoint - ispoint)
-        self.iterm += (error * timeDelta * self.ki)
-        self.iterm = sorted([-1, self.iterm, 1])[1]
-        dErr = (error - self.lastErr) / timeDelta
-
-        output = self.kp * error + self.iterm + self.kd * dErr
-        output = sorted([-1, output, 1])[1]
-        self.lastErr = error
-        self.lastNow = now
-
-        return output
