@@ -140,8 +140,8 @@ class Oven(threading.Thread):
                 self.pid.setpoint = self.target
                 pid = self.pid(self.temp_sensor.temperature)
 
-                log.info("running at %.1f deg F (Target: %.1f) , heat %.2f, PID %.1f" % (
-                    self.temp_sensor.temperature, self.target, self.heat, pid))
+                log.info("running at %.1f deg F (Target: %.1f) , heat %.2f, PID %.1f, phase % .1s" % (
+                    self.temp_sensor.temperature, self.target, self.heat, pid, "Hold" if self.profile.segPhase == 1 else "Ramp"))
 
                 # Capture the last temperature value. This must be done before set_heat, since there is a sleep
                 last_temp = self.temp_sensor.temperature
