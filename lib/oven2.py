@@ -100,7 +100,7 @@ class Oven(threading.Thread):
         self.runtime = 0
         self.target = 0
         self.state = Oven.STATE_IDLE
-        self.pid = PID(Kp=config.pid_kp, Ki=config.pid_ki, Kd=config.pid_kd, sample_time=pid_cycle, output_limits=(0, pid_cycle), auto_mode=True)
+        self.pid = PID(Kp=config.pid_kp, Ki=config.pid_ki, Kd=config.pid_kd, sample_time=pid_cycle/1000, output_limits=(0, pid_cycle/1000), auto_mode=True)
 
     def run_profile(self, profile):
         log.info("Running profile %s" % profile.name)
