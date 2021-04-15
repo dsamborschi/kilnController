@@ -25,7 +25,7 @@ seg_num = 0
 # Current segment phase.  0 = ramp.  1 = hold.
 seg_phase = 0
 # This is how close the temp reading needs to be to the set point to shift to the hold phase (degrees).  Set to zero or a positive integer.
-temp_range = 2
+temp_range = 20
 pid_cycle = 2500
 try:
     if config.max31855 + config.max6675 + config.max31855spi > 1:
