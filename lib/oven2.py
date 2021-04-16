@@ -25,8 +25,8 @@ seg_num = 0
 # Current segment phase.  0 = ramp.  1 = hold.
 seg_phase = 0
 # This is how close the temp reading needs to be to the set point to shift to the hold phase (degrees).  Set to zero or a positive integer.
-temp_range = 0
-pid_cycle = 7500
+temp_range = 5
+pid_cycle = 9500
 try:
     if config.max31855 + config.max6675 + config.max31855spi > 1:
         log.error("choose (only) one converter IC")
@@ -137,11 +137,13 @@ class Oven(threading.Thread):
                 if millis() - self.profile.pidStart >= pid_cycle:
                     self.profile.pidStart = millis()
                     self.target = self.profile.update_pid(self.temp_sensor.temperature)
+                    log.info("update pid at %.1f deg F (Target: %.1f) , heat %.2f, PID %.1f, phase % .1s" % (
+                        self.temp_sensor.temperature, self.target, self.heat, pid,
+                        "Hold" if self.profile.segPhase == 1 else "Ramp"))
+
                 self.pid.setpoint = self.target
                 pid = self.pid(self.temp_sensor.temperature)
 
-                log.info("running at %.1f deg F (Target: %.1f) , heat %.2f, PID %.1f, phase % .1s" % (
-                    self.temp_sensor.temperature, self.target, self.heat, pid, "Hold" if self.profile.segPhase == 1 else "Ramp"))
 
                 # Capture the last temperature value. This must be done before set_heat, since there is a sleep
                 last_temp = self.temp_sensor.temperature
