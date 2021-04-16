@@ -26,7 +26,7 @@ seg_num = 0
 seg_phase = 0
 # This is how close the temp reading needs to be to the set point to shift to the hold phase (degrees).  Set to zero or a positive integer.
 temp_range = 0
-pid_cycle = 2500
+pid_cycle = 7500
 try:
     if config.max31855 + config.max6675 + config.max31855spi > 1:
         log.error("choose (only) one converter IC")
