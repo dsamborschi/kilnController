@@ -46,11 +46,6 @@ def get_profiles():
 
 
 def main():
-    ip = config.listening_ip
-    port = config.listening_port
-    log.info("listening on %s:%d" % (ip, port))
-
-    log.info("SIMULATE command received")
     profiles = []
     profiles = get_profiles()
 

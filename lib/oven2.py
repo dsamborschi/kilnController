@@ -26,7 +26,7 @@ seg_num = 0
 seg_phase = 0
 # This is how close the temp reading needs to be to the set point to shift to the hold phase (degrees).  Set to zero or a positive integer.
 temp_range = 5
-pid_cycle = 9500
+pid_cycle = 2500
 try:
     if config.max31855 + config.max6675 + config.max31855spi > 1:
         log.error("choose (only) one converter IC")
@@ -100,7 +100,8 @@ class Oven(threading.Thread):
         self.runtime = 0
         self.target = 0
         self.state = Oven.STATE_IDLE
-        GPIO.output(config.gpio_heat, GPIO.LOW)
+        if gpio_available:
+            GPIO.output(config.gpio_heat, GPIO.LOW)
         self.pid = PID(Kp=config.pid_kp, Ki=config.pid_ki, Kd=config.pid_kd, sample_time=pid_cycle / 1000,
                        output_limits=(0, pid_cycle / 1000), auto_mode=True)
 
@@ -144,7 +145,6 @@ class Oven(threading.Thread):
                 self.pid.setpoint = self.target
                 pid = self.pid(self.temp_sensor.temperature)
 
-
                 # Capture the last temperature value. This must be done before set_heat, since there is a sleep
                 last_temp = self.temp_sensor.temperature
                 self.set_heat2(pid, self.profile.pidStart)
@@ -155,13 +155,14 @@ class Oven(threading.Thread):
                     self.reset()
 
     def set_heat2(self, value, pidstart):
-        # if gpio_available:
         if value * 1000 >= millis() - pidstart:
             self.heat = 1.0
-            GPIO.output(config.gpio_heat, GPIO.HIGH)
+            if gpio_available:
+                GPIO.output(config.gpio_heat, GPIO.HIGH)
         else:
             self.heat = 0.0
-            GPIO.output(config.gpio_heat, GPIO.LOW)
+            if gpio_available:
+                GPIO.output(config.gpio_heat, GPIO.LOW)
 
     def get_state(self):
         state = {
@@ -258,8 +259,6 @@ class TempSensorSimulate(TempSensor):
                 int(p_heat * self.oven.heat), t_h, int(p_ho), t, int(p_env)))
             self.temperature = t
 
-            time.sleep(self.sleep_time)
-
 
 class Profile:
     def __init__(self, json_data):
@@ -327,7 +326,7 @@ class Profile:
     def update_pid(self, temp_sensor):
         # Get the last target temperature
         if self.segNum == 1:  # Set to terhmocouple temperature for first segment
-            self.lastTemp = temp_sensor
+            self.lastTemp = 75
         else:
             self.lastTemp = self.segTemps[self.segNum - 2]
 
