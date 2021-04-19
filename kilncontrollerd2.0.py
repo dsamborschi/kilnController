@@ -52,12 +52,8 @@ def main():
     profile_json = json.dumps(profiles[0])
     profile = Profile(profile_json)
 
-    oven = Oven(simulate=True, time_step=10)
+    oven = Oven(simulate=True)
     oven.run_profile(profile)
-
-
-
-
 
 
 if __name__ == "__main__":
