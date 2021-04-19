@@ -140,8 +140,8 @@ class Oven(threading.Thread):
                     self.target = self.profile.update_pid(self.temp_sensor.temperature)
                     self.pid.setpoint = self.target
                     pid = self.pid(self.temp_sensor.temperature)
-                    log.info("update pid at %.1f deg F (Target: %.1f) , PID %.1f, phase % .1s" % (
-                        self.temp_sensor.temperature, self.target,  pid,
+                    log.info("update pid at %.1f deg F (Target: %.1f) , heat is %.1f, PID %.1f, phase % .1s" % (
+                        self.temp_sensor.temperature, self.target, self.heat, pid,
                         "Hold" if self.profile.segPhase == 1 else "Ramp"))
 
                 # Capture the last temperature value. This must be done before set_heat, since there is a sleep
@@ -158,12 +158,10 @@ class Oven(threading.Thread):
             self.heat = 1.0
             if gpio_available:
                 GPIO.output(config.gpio_heat, GPIO.HIGH)
-                log.info("Heat is ON")
         else:
             self.heat = 0.0
             if gpio_available:
                 GPIO.output(config.gpio_heat, GPIO.LOW)
-                log.info("Heat is OFF")
 
     def get_state(self):
         state = {
