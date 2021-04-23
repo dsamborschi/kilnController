@@ -79,6 +79,8 @@ function updateProfilesByType(id)
           }
 
        }
+    $('#e2').select2('val', 0);
+    updateProfile(0);
 
 }
 
