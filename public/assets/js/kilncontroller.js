@@ -754,7 +754,7 @@ $(document).ready(function()
 
         $("#e3").on("change", function(e)
         {
-            updateProfiles(e.val);
+            updateProfilesByType(e.val);
         });
 
     }
