@@ -68,7 +68,8 @@ function updateProfilesByType(id)
 {
     selected_type = id;
     console.log(selected_type);
-    $('#e2').empty()
+     $('#e2').find('option').remove().end();
+
     for (var i=0; i<profiles.length; i++)
        {
           var profile = profiles[i];
@@ -79,7 +80,7 @@ function updateProfilesByType(id)
           }
 
        }
-    $("#e2 option:first").attr('selected','selected');
+
 
 
 }
