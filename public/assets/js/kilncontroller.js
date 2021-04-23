@@ -73,7 +73,7 @@ function updateProfilesByType(id)
        {
           var profile = profiles[i];
           //console.log(profile.name);
-          if (profile.type == selected_type || profile.type == "all")
+          if (profile.type == selected_type || selected_type == "all")
           {
              $('#e2').append('<option value="'+i+'">'+profile.name+'</option>');
           }
