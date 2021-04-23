@@ -79,7 +79,7 @@ function updateProfilesByType(id)
           }
 
        }
-    $('#e2').select2('val', 0);
+    $('#e2').val($("#e2 option:first").val());
 
 }
 
