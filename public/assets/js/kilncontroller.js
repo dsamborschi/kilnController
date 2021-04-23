@@ -68,12 +68,12 @@ function updateProfilesByType(id)
 {
     selected_type = id;
     console.log(selected_type);
-
+    $('#e2').empty()
     for (var i=0; i<profiles.length; i++)
        {
           var profile = profiles[i];
           //console.log(profile.name);
-          if (profile.type == selected_type)
+          if (profile.type == selected_type || profile.type == "all")
           {
              $('#e2').append('<option value="'+i+'">'+profile.name+'</option>');
           }
