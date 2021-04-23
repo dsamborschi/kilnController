@@ -66,7 +66,13 @@
       <div class="panel panel-default row">
         <div class="panel-heading col-xs-12">
           <div id="profile_selector" class="pull-left">
-          <select id="e2" class="select2" style="margin-top: 4px"></select><select id="e3" class="select2" style="margin-top: 4px"><option value="ramp-hold">Ramp-Hold</option><option value="2">Pottery</option></select>
+
+            <select id="e3" class="select2" style="margin-top: 4px">
+              <option value="all">All</option>
+              <option value="ramp-hold">Ramp-Hold</option>
+              <option value="pottery">Pottery</option>
+            </select>
+            <select id="e2" class="select2" style="margin-top: 4px"></select>
           <button id="btn_edit" type="button" class="btn btn-default" onclick="enterEditMode()"><span class="glyphicon glyphicon-edit"></span></button>
           <button id="btn_new" type="button" class="btn btn-default" onclick="enterNewMode(selected_profile)"><span class="glyphicon glyphicon-plus"></span></button>
         </div>
