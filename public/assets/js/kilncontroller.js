@@ -64,6 +64,24 @@ function updateProfile(id)
     graph.plot = $.plot("#graph_container", [ graph.profile, graph.live, graph.movingProfile ] , getOptions());
 }
 
+function updateProfilesByType(id)
+{
+    selected_type = id;
+    console.log(selected_type);
+
+    for (var i=0; i<profiles.length; i++)
+       {
+          var profile = profiles[i];
+          //console.log(profile.name);
+          if (profile.type == selected_type)
+          {
+             $('#e2').append('<option value="'+i+'">'+profile.name+'</option>');
+          }
+
+       }
+
+}
+
 function deleteProfile()
 {
     var profile = { "type": "profile", "data": "", "name": selected_profile_name };
@@ -721,10 +739,22 @@ $(document).ready(function()
             minimumResultsForSearch: -1
         });
 
+        $("#e3").select2(
+        {
+            placeholder: "Select Type",
+            allowClear: true,
+            minimumResultsForSearch: -1
+        });
+
 
         $("#e2").on("change", function(e)
         {
             updateProfile(e.val);
+        });
+
+        $("#e3").on("change", function(e)
+        {
+            updateProfiles(e.val);
         });
 
     }

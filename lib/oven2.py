@@ -153,13 +153,6 @@ class Oven(threading.Thread):
                 if self.profile.finished():
                     self.reset()
 
-                if pid > 0:
-                    time.sleep(self.time_step * (1 - pid))
-                    log.info("pid is %.1f. Sleep for %.2f" % (pid, self.time_step * (1 - pid)))
-                else:
-                    log.info("pid is %.1f. Sleep for %.2f" % (pid, self.time_step))
-                    time.sleep(self.time_step)
-
     def set_heat2(self, value, pidstart):
         if value * 1000 >= millis() - pidstart:
             self.heat = 1.0
