@@ -53,6 +53,7 @@ function updateProfile(id)
 {
     selected_profile = id;
     selected_profile_name = profiles[id].name;
+    selected_profile_type = profiles[id].type;
     var job_seconds = profiles[id].data.length === 0 ? 0 : parseInt(profiles[id].data[profiles[id].data.length-1][0]);
     var kwh = (3850*job_seconds/3600/1000).toFixed(2);
     var cost =  (kwh*kwh_rate).toFixed(2);
@@ -60,6 +61,10 @@ function updateProfile(id)
     $('#sel_prof').html(profiles[id].name);
     $('#sel_prof_eta').html(job_time);
     $('#sel_prof_cost').html(kwh + ' kWh ('+ currency_type +': '+ cost +')');
+    if (selected_profile_type == "ramp-hold"){
+      console.log (profiles[id].data)
+    }
+
     graph.profile.data = profiles[id].data;
     graph.plot = $.plot("#graph_container", [ graph.profile, graph.live, graph.movingProfile ] , getOptions());
 }
@@ -68,7 +73,7 @@ function updateProfilesByType(id)
 {
     selected_type = id;
     console.log(selected_type);
-    $('#e2 option:selected').remove();
+
     $('#e2').find('option').remove().end();
 
     for (var i=0; i<profiles.length; i++)
