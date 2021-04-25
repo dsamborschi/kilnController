@@ -63,13 +63,25 @@ function updateProfile(id)
     $('#sel_prof_cost').html(kwh + ' kWh ('+ currency_type +': '+ cost +')');
     if (selected_profile_type == "ramp-hold"){
       console.log (profiles[id].data)
-      profiles[id].data[0][0] = 0
-      profiles[id].data[0][1] = 0
-      profiles[id].data[1][0] = 5
-      profiles[id].data[1][1] = 60
+      var new_data = []
+      new_data[0][0] = 0
+      new_data[0][1] = 68
+      var j = 0
+      for (var i=0; i<profiles[id].data.length; i++)
+       {
+        new_data[j+1][0] = new_data[i][0] + profiles[id].data[i][1]/(profiles[id].data[i][0]/60)
+        new_data[j+1][1] = profiles[id].data[i][1]
+        new_data[j+2][0] = new_data[i+1][0] + profiles[id].data[i][2]
+        new_data[j+2][1] = profiles[id].data[i][1]
+        j = j + 2
+       }
+
+      graph.profile.data = new_data;
+    }else{
+       graph.profile.data = profiles[id].data;
     }
 
-    graph.profile.data = profiles[id].data;
+
     graph.plot = $.plot("#graph_container", [ graph.profile, graph.live, graph.movingProfile ] , getOptions());
 }
 
