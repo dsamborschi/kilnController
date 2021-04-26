@@ -70,7 +70,7 @@ function updateProfile(id)
       for (var i=0; i<profiles[id].data.length; i++)
        {
         //new_data[j+1][0] = new_data[j][0] + profiles[id].data[i][1]/(profiles[id].data[i][0]/60);
-        new_data.push([new_data[j][0] + profiles[id].data[i][1]/(profiles[id].data[i][0]/60),profiles[id].data[i][1]]);
+        new_data.push([new_data[j][0] + (profiles[id].data[i][1]-new_data[j][1])/(profiles[id].data[i][0]/60),profiles[id].data[i][1]]);
         //new_data[j+1][1] = profiles[id].data[i][1];
         //new_data[j+2][0] = new_data[j+1][0] + profiles[id].data[i][2];
         //new_data[j+2][1] = profiles[id].data[i][1];
