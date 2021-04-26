@@ -78,6 +78,7 @@ function updateProfile(id)
        }
 
       graph.profile.data = new_data;
+      console.log (new_data);
     }else{
        graph.profile.data = profiles[id].data;
     }
