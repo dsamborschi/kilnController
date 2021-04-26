@@ -76,7 +76,7 @@ function updateProfile(id)
         new_data.push([point1_time,point1_temp]);
 
         hold = profiles[id].data[i][2]*60;
-        point2_time = new_data[j+1][0] + hold;
+        point2_time = point1_time + hold;
         point2_temp = profiles[id].data[i][1];
         new_data.push([point2_time,point2_temp]);
         //points counter ++
