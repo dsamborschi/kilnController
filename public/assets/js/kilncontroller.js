@@ -65,6 +65,7 @@ function updateProfile(id)
       console.log (profiles[id].data);
       var new_data = [];
       new_data.push(0,68);
+      console.log (new_data);
       var j = 0
       for (var i=0; i<profiles[id].data.length; i++)
        {
