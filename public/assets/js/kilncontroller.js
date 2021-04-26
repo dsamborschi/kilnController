@@ -63,7 +63,7 @@ function updateProfile(id)
     $('#sel_prof_cost').html(kwh + ' kWh ('+ currency_type +': '+ cost +')');
     if (selected_profile_type == "ramp-hold"){
       console.log (profiles[id].data)
-      var new_data = []
+      var new_data = [][]
       new_data[0][0] = 0
       new_data[0][1] = 68
       var j = 0
