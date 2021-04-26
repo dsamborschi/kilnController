@@ -74,7 +74,7 @@ function updateProfile(id)
         //new_data[j+1][1] = profiles[id].data[i][1];
         //new_data[j+2][0] = new_data[j+1][0] + profiles[id].data[i][2];
         //new_data[j+2][1] = profiles[id].data[i][1];
-        new_data.push([(new_data[j+1][0] + profiles[id].data[i][2]),profiles[id].data[i][1]]);
+        new_data.push([(new_data[j+1][0] + profiles[id].data[i][2]*60),profiles[id].data[i][1]]);
         j = j + 1;
        }
 
