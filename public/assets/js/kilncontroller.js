@@ -70,8 +70,8 @@ function updateProfile(id)
       for (var i=0; i<profiles[id].data.length; i++)
        {
        //one segment, two points
-        ramp_time = (profiles[id].data[i][1]-new_data[j][1])/(profiles[id].data[i][0]/60);
-        point1_time = new_data[j][0] + Math.abs(ramp_time);
+        ramp = (profiles[id].data[i][1]-new_data[j][1])/(profiles[id].data[i][0]/60);
+        point1_time = new_data[j][0] + Math.abs(ramp);
         point1_temp = profiles[id].data[i][1];
         new_data.push([timeProfileFormatter(point1_time,false),point1_temp]);
 
